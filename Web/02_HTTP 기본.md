@@ -172,3 +172,197 @@
 
 - 데이터를 매우 많이 먹음
 - **최대한 무상태로 설계하고, 부득이한 경우만 상태유지를 사용한다**
+
+
+
+***
+
+
+
+### 비 연결성(connectionless)
+
+**[연결을 유지하는 모델]**
+
+> 다수의 클라이언트가 서버에 연결을 하면 하나의 클라이언트와 서버가 요청과 응답을 하는 동안 나머지 클라이언트도 연결을 유지하고 있어야함
+>
+> = 연결을 유지하는 서버 자원 소모
+
+**[연결을 유지하지 않는 모델]**
+
+> 클라이언트가 서버에 요청을 하면 연결되어있던 클라이언트와의 연결을 끊고 요청이 있는 클라이언트와 연결
+>
+> = 서버 연결 유지 X, 최소한의 자원 유지
+
+
+
+#### 비 연결성
+
+- HTTP는 기본적으로 **연결을 유지하지 않는** 모델
+- 일반적으로 초 단위 이하의 빠른 속도로 응답
+- 1시간 동안 수천명이 서비스를 사용해도 실제 서버에서 동시에 처리하는 요청은 수십개 이하로 매우 작음
+
+> ex) 웹 브라우저에서 계속 연속해서 검색 버튼을 누르지 않는다.
+
+- 서버 자원을 매우 효율적으로 사용할 수 있음
+
+
+
+#### 비 연결성 한계와 극복
+
+- 한계
+
+> - TCP/IP 연결을 새로 맺어야 함 - 3 way handshake 시간 추가
+> - 웹 브라우저로 사이트를 요청하면 HTML 뿐만 아니라 자바스크립트, CSS, 추가 이미지 등등 수 많은 자원이 함께 다운로드
+
+- 극복
+
+> - 지금은 HTTP 지속연결(Persistent Connections)로 문제 해결
+> - HTTP/2, HTTP/3 에서 더 많은 최적화
+
+
+
+#### 스테이스리스를 기억하자
+
+> 서버 개발자들이 어려워하는 업무
+
+- 정말 같은 시간에 딱 맞추어 발생하는 대용량 트래픽
+
+> 선착순 이벤트, 명절 KTX예약 등등 → 수만명 동시 요청
+
+
+
+***
+
+
+
+### HTTP 메시지
+
+> start-line 시작라인
+
+> header 헤더
+
+> empty line 공백 라인(CRLF) **무조건 있어야함**
+
+> message body
+
+
+
+**[HTTP 요청 메시지 예시]**
+
+> GET /search?q=hello&hl=ko HTTP/1.1 (시작 라인)
+
+> Host: www. google.com (헤더)
+
+>  
+
+(전송할 데이터가 없다면 공백만 넣고 body없이 전송)
+
+**[HTTP 응답 메시지 예시]**
+
+> HTTP/1.1 200 OK (시작라인)
+
+> Content-Type: text/html;charset=UTF-8 
+>
+> Content-Length: 3423 (헤더)
+
+>  
+
+> <html>
+>
+>    <body>...</body>
+>
+> <html> (message body)
+
+
+
+#### 시작 라인
+
+**[요청 메시지]**
+
+> GET /search?q=hello&hl=ko HTTP/1.1 
+
+- start-line = **request-line** (요청 메시지) / status-line
+- **request-line** = method SP(공백) request-target SP HTTP-version CRLF (엔터)     (SP: space (띄어쓰기))
+
+
+
+- HTTP 메서드 (GET: 조회)
+
+> HTTP메서드 종류 : GET(서버한테 이거 줘), POST(서버에게 리소스를 줄테니까 처리해줘), PUT, DELETE(서버에게 이거 삭제해줘)
+>
+> **서버가 수행해야 할 동작 지정**    (중요)
+
+- 요청 대상 (/search?q=hello&hl=ko)
+
+> - absolute-path[>query] (절대경로[?쿼리])
+> - 절대경로 = `/` 로 시작하는 경로
+> - 참고: *, http://...?x=y 와 같이 다른 유형의 경로지정 방법도 있다.
+
+- HTTP Version
+
+
+
+**[응답 메시지]**
+
+> HTTP/1.1 200 OK
+
+- start-line = request-line / status-line (응답 메시지)
+- **status-line** = HTTP-version SP status-code SP reason-phrase CRLF      (SP: space (띄어쓰기))
+
+
+
+- HTTP 버전
+- HTTP 상태 코드 : 요청 성공, 실패를 나타냄
+
+> - 200: 성공
+> - 400: 클라이언트 요청 오류
+> - 500: 서버 내부 오류
+
+- 이유 문구: 사람이 이해할 수 있는 짧은 상태 코드 설명 글
+
+
+
+#### HTTP 헤더
+
+> Host: www. google.com (헤더)
+
+> Content-Type: text/html;charset=UTF-8 
+>
+> Content-Length: 3423 (헤더)
+
+- header-field = field-name**(여긴 띄어쓰면 안됨)**":" OWS field-value OWS (OWS: 띄어쓰기 허용, 띄어써도 되고 안띄어써도 된다)
+- field-name 은 대소문자 구분 없음
+
+**[용도]**
+
+- HTTP 전송에 필요한 모든 부가정보
+
+> ex) 메시지 바디의 내용, 메시지 바디의 크기, 압축, 인증, 요청 클라이언트(브라우저) 정보,
+>
+> 서버 애플리케이션 정보, 캐시 관련 정보 ...
+
+- 표준 헤더가 너무 많음
+
+> https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+
+- 필요시 임의의 헤더 추가 기능
+
+> helloworld: hihi
+
+
+
+#### HTTP 메시지 바디
+
+**[용도]**
+
+- 실제 전송할 데이터
+- HTML 문서, 이미지, 영상, JSON 등등 byte로 표현할 수 있는 모든 데이터 전송 가능
+
+
+
+#### 단순함 & 확장 가능
+
+- HTTP는 단순하다
+- HTTP 메시지도 매우 단순
+- 크게 성공하는 기술은 단순하지만 확장 가능한 기술
+
