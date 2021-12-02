@@ -9,9 +9,20 @@
 ### SQL의 기본 명령어는 **4가지**로 분류
 
 - 데이터 정의어 (DDL) : 테이블 생성, 변경, 삭제
+
+  > 테이블을 관리
+
 - 데이터 조작어 (DML) : 데이터 삽입, 조회, 수정, 삭제  **(가장 많이 사용)**
+
+  > 데이터를 관리
+
 - 데이터 제어어 (DCL) : 데이터 접근 권한 부여, 제거
+
+  > 데이터 권한 관리
+
 - 트랜젝션 제어어 (TCL) : 데이터 조작어 (DML) 명령어 실행, 취소, 임시저장
+
+  > 트렌젝션을 사용
 
 
 
@@ -146,6 +157,10 @@ SELECT *
 
 
 
+
+
+
+
 ## 데이터 조작어 (DML)
 
 > 데이터 조작어는 데이터를 삽입, 조회, 수정, 삭제할 때 사용하는 명령어
@@ -239,4 +254,189 @@ DELETE
 SELECT  *
   FROM  회원테이블;
 ```
+
+
+
+
+
+
+
+
+
+## 데이터 제어어 (DCL)
+
+> - 데이터 제어어는 데이터 접근 권한 부여 및 제거할 때 사용하는 명령어
+> - 데이터베이스 관리자 (DBA)가 특정 사용자(User)에게 데이터 <u>접근 권한을 부여 및 제거할 때 사용하는 명령어</u>
+
+
+
+```sql
+/***************사용자 확인***************/
+/* MYSQL 데이터베이스 사용 */
+USE MYSQL;
+
+/* 사용자 확인 */
+SELECT  *
+  FROM  USER;
+  
+/***************사용자 추가***************/
+
+/* 사용자 아이디 및 비밀번호 생성 */ 
+CREATE USER 'TEST'@LOCALHOST IDENTIFIED BY 'TEST';
+/*이때 @LOCALHOST는 로컬에서 접속이 가능하다는 것을 의미 (그림1)*/
+
+/* 사용자 확인 */
+SELECT  *
+  FROM  USER;
+  
+/* 사용자 비밀번호 변경 */
+SET PASSWORD FOR 'TEST'@LOCALHOST = '1234';
+
+  
+/***************권한 부여 및 제거***************/ 
+/** 권한: CREATE, ALTER, DROP, INSERT, DELETE, UPDATE, SELECT 등  **/
+
+/* 특정 권한 부여 */
+GRANT SELECT, DELETE ON PRACTICE.회원테이블 TO 'TEST'@LOCALHOST;
+/*TEST에서 SELECT랑 DELETE를 쓸 수 있게 권한 부여*/
+
+/* 특정 권한 제거 */
+REVOKE DELETE ON PRACTICE.회원테이블 FROM 'TEST'@LOCALHOST;
+/*TEST에서 DELETE를 쓸 수 없게 권한 제어*/
+
+/* 모든 권한 부여 */
+GRANT ALL ON Practice.회원테이블 TO 'TEST'@LOCALHOST;
+/*TEST에서 모든 명령어 권한 부여*/
+
+/* 모든 권한 제거 */
+REVOKE ALL ON Practice.회원테이블 FROM 'TEST'@LOCALHOST;
+/*TEST에서 모든 명령어 권한 제거*/
+
+/***************사용자 삭제***************/ 
+
+/* 사용자 삭제 */
+DROP USER 'TEST'@LOCALHOST;
+
+/* 사용자 확인 */
+SELECT  *
+  FROM  USER;
+```
+
+> (그림1)
+
+<img src="/Users/taeyoung/Library/Application Support/typora-user-images/image-20211202105446731.png" alt="image-20211202105446731" style="zoom: 33%;" />> 
+
+
+
+
+
+## 트랜젝션 제어어(TCL)
+
+> - 트랜젝션 제어어는 데이터 조작어(DML) 명령어 실행, 취소, 임시저장할 때 사용하는 명령어
+> - 트랜젝션(Transaction)은 **분할할 수 없는 최소 단위**, 논리적인 작업 단위
+> - 실행, 취소
+>   - 실행(COMMIT) : 모든 작업을 최종 실행
+>   - 취소(ROLLBACK) : 모든 작업 되돌림
+
+
+
+```sql
+/* Practice 데이터베이스 사용*/
+USE Practice;
+
+/***************테이블 생성(Create)***************/
+/* (회원테이블 존재할 시, 회원테이블 삭제) */
+DROP TABLE 회원테이블;
+
+/* 회원테이블 생성 */
+CREATE TABLE 회원테이블 (
+회원번호 INT PRIMARY KEY,
+이름 VARCHAR(20),
+가입일자 DATE NOT NULL,
+수신동의 BIT
+);
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+
+/***************BEGIN + 취소(ROLLBACK)*******************/  
+/* 트랜젝션 시작 */
+BEGIN;
+
+/* 데이터 삽입 */
+INSERT INTO 회원테이블 VALUES (1001, '홍길동', '2020-01-02', 1);
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+/* 취소 */
+ROLLBACK;
+
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+
+/***************BEGIN + 실행(COMMIT)*******************/  
+/* 트랜젝션 시작 */
+BEGIN;
+
+/* 데이터 삽입 */
+INSERT INTO 회원테이블 VALUES (1005, '장보고', '2020-01-06', 1);
+
+/* 실행 */
+COMMIT;
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+
+/***************임시 저장(SAVEPOINT)*******************/ 
+/* (회원테이블에 데이터 존재할 시, 데이터 모두 삭제) */
+DELETE FROM 회원테이블;
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+/* 트랜젝션 시작 */
+BEGIN;
+
+/* 데이터 삽입 */
+INSERT INTO 회원테이블 VALUES (1005, '장보고', '2020-01-06', 1);
+
+/* SAVEPOINT 지정 */
+SAVEPOINT S1;
+
+/* 1005 회원 이름 수정 */
+UPDATE  회원테이블
+   SET  이름 = '이순신';
+ 
+/* SAVEPOINT 지정 */
+SAVEPOINT S2;
+
+/* 1005 회원 데이터 삭제 */
+DELETE 
+  FROM  회원테이블;
+ 
+/* SAVEPOINT 지정 */
+SAVEPOINT S3;
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+/* SAVEPOINT S2 저장점으로 ROLLBACK */
+ROLLBACK TO S2;
+ 
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+
+/* 실행 */
+COMMIT;
+
+/* 회원테이블 조회 */
+SELECT  *  FROM  회원테이블;
+```
+
+
 
