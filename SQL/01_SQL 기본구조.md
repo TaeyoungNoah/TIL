@@ -99,7 +99,7 @@
 
 ![image-20211201194856997](/Users/taeyoung/Library/Application Support/typora-user-images/image-20211201194856997.png)
 
-```sql
+```mysql
 /*
 command + T = 새로운 쿼리 창 열기
 command + Enter = 쿼리 실행

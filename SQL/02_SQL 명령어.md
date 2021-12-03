@@ -100,7 +100,7 @@ ex) <회원 테이블>
 
 
 
-```sql
+```mysql
 /*Practice 이름으로 데이터 베이스 생성*/
 CREATE DATABASE Practice;
 
@@ -165,7 +165,7 @@ SELECT *
 
 > 데이터 조작어는 데이터를 삽입, 조회, 수정, 삭제할 때 사용하는 명령어
 
-```sql
+```mysql
 /* Practice 데이터베이스 사용*/
 USE Practice;
 
@@ -270,7 +270,7 @@ SELECT  *
 
 
 
-```sql
+```mysql
 /***************사용자 확인***************/
 /* MYSQL 데이터베이스 사용 */
 USE MYSQL;
@@ -340,7 +340,7 @@ SELECT  *
 
 
 
-```sql
+```mysql
 /* Practice 데이터베이스 사용*/
 USE Practice;
 

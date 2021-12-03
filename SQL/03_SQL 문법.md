@@ -47,7 +47,7 @@
 
 (강좌에서 제공한 테이블 사용)
 
-```sql
+```mysql
 USE PRACTICE;
 
 /***************FROM***************/
@@ -183,7 +183,7 @@ HAVING  COUNT(MEM_NO) < 100
 
 
 
-```sql
+```mysql
 USE PRACTICE;
 
 /***************INNER JOIN***************/
@@ -341,7 +341,7 @@ SELECT  *
 
 
 
-```sql
+```mysql
 USE PRACTICE;
 
 
@@ -542,7 +542,7 @@ SELECT  A.구매횟수
 
 
 
-```sql
+```mysql
 USE PRACTICE;
 
 
